@@ -67,19 +67,18 @@ class NetWwork:
 
     
     def transfere_donné(self):
-        for i in range(1,len(self.all_conexion)+1,2):
-            client_1 = self.all_conexion [i-1]
-            client_2 = self.all_conexion[i]
-            
-            Thread(target=self.transfer, args=[client_1, client_2] ).start()
-            Thread(target=self.transfer, args=[client_2, client_1] ).start()
 
+        for i in range(1, len(self.all_conexion), 2):
+            
+            Thread(target=self.transfer, args=[self.all_conexion[i-1], self.all_conexion[i]] ).start()
+            Thread(target=self.transfer, args=[self.all_conexion[i], self.all_conexion[i-1]] ).start()
+            
 
     def transfer(self , client1, client2):
         try : 
-            msg = client1.recv(128).decode('utf-8')
-            client2.send(msg.encode('utf-8'))
-        except : pass
+            client2.send(client1.recv(128))
+        except : 
+            None
     def main(self):
 
         while True:
@@ -87,12 +86,13 @@ class NetWwork:
             CreeThread(self.occupé_client_thread)
             CreeThread(self.protocole_client_serveur)
             CreeThread(self.protocole_client_wating_serveur)
-            if len(self.all_conexion) > 1: CreeThread(self.transfere_donné)
 
             if len(self.all_conexion_wait) % 2 == 0:
                 for conexion in self.all_conexion_wait:
                     self.all_conexion.append(conexion)
                 self.all_conexion_wait = []
+                
+            if len(self.all_conexion) > 1: CreeThread(self.transfere_donné)
 
             
 
