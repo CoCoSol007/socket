@@ -34,13 +34,13 @@ class NetWwork:
                 print("client deconecter")
 
                 position_client = self.all_conexion.index(client) # on cherche pour remletre son partenaire client en atente
-                self.all_conexion.remove(client)
                 if position_client % 2 == 0:
                     position_client += 1
                 else: position_client -= 1
 
                 self.all_conexion_wait.append(self.all_conexion[position_client])
                 del self.all_conexion[position_client]
+                self.all_conexion.remove(client)
 
 
     def protocole_client_wating_serveur(self):
