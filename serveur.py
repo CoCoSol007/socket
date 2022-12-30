@@ -61,11 +61,6 @@ class NetWwork:
 
         #on l'ajoute a la liste
         self.all_conexion_wait.append(Client)
-
-        if len(self.all_conexion_wait) % 2 == 0:
-            for conexion in self.all_conexion_wait:
-                self.all_conexion.append(conexion)
-            self.all_conexion_wait = []
         
         print ("New client : " + str(adresse[0]))
         print("there is now : " + str(len(self.all_conexion_wait) + len(self.all_conexion)) + " clien")
@@ -92,7 +87,12 @@ class NetWwork:
             CreeThread(self.occupé_client_thread)
             CreeThread(self.protocole_client_serveur)
             CreeThread(self.protocole_client_wating_serveur)
-            if len(self.all_conexion) != 0: CreeThread(self.transfere_donné)
+            if len(self.all_conexion) > 1: CreeThread(self.transfere_donné)
+
+            if len(self.all_conexion_wait) % 2 == 0:
+                for conexion in self.all_conexion_wait:
+                    self.all_conexion.append(conexion)
+                self.all_conexion_wait = []
 
             
 
