@@ -7,7 +7,7 @@ class client():
     def init(self):
 
         self.connexion = socket.socket()
-        host = '192.168.1.26'
+        host = 'localhost'
         port = 8080
         self.connexion.connect((host, port))
 
