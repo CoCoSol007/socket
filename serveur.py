@@ -1,20 +1,18 @@
 import socket
 from threading import Thread
+from constant import *
+
 
 def CreeThread(foction):
     thread = Thread(target=foction)
     thread.start()
-    
-
-
-
 
 class NetWwork:
     def init(self, port):
         self.host = ''
         self.port = port
 
-        self.all_conexion = []
+        self.all_conexion = {}
         self.all_conexion_wait = []
 
         self.connexion = socket.socket()
@@ -25,77 +23,58 @@ class NetWwork:
 
         self.main()
 
-
-    def protocole_client_serveur(self):
-        for client in self.all_conexion:
-            try:
-                client.send("requet_playing".encode("utf-8"))
-            except: 
-                print("client deconecter")
-
-                position_client = self.all_conexion.index(client) # on cherche pour remletre son partenaire client en atente
-                if position_client % 2 == 0:
-                    position_client += 1
-                else: position_client -= 1
-
-                self.all_conexion_wait.append(self.all_conexion[position_client])
-                del self.all_conexion[position_client]
-                self.all_conexion.remove(client)
-
-
     def protocole_client_wating_serveur(self):
-        for client in self.all_conexion_wait:
-            try:
-                client.send("requet_waitng".encode("utf-8"))
-            except: 
-                print("client deconecter")
-                self.all_conexion_wait.remove(client)
-                
-            
-    
-    def occupé_client_thread(self):
-        # on accepte les joueur
-        Client, adresse =  self.connexion.accept()
-
-
-
-        #on l'ajoute a la liste
-        self.all_conexion_wait.append(Client)
-        
-        print ("New client : " + str(adresse[0]))
-        print("there is now : " + str(len(self.all_conexion_wait) + len(self.all_conexion)) + " clien")
-
-    
-    def transfere_donné(self):
-
-        for i in range(1, len(self.all_conexion), 2):
-            
-            Thread(target=self.transfer, args=[self.all_conexion[i-1], self.all_conexion[i]] ).start()
-            Thread(target=self.transfer, args=[self.all_conexion[i], self.all_conexion[i-1]] ).start()
-            
-
-    def transfer(self , client1, client2):
-        try : 
-            client2.send(client1.recv(128))
-        except : 
-            None
-    def main(self):
 
         while True:
+            for client in self.all_conexion_wait:
+                try:
+                    client.send(cripteur_bytes(numbre_waiting))
+                except ConnectionError: 
+                    print("client deconecter")
+                    self.all_conexion_wait.remove(client)
 
-            CreeThread(self.occupé_client_thread)
-            CreeThread(self.protocole_client_serveur)
-            CreeThread(self.protocole_client_wating_serveur)
+    def send_to_client(self, client, data = list):
+        data = cripteur_bytes(data)
+        client.send(data)
+
+    def accepting_clients_thread(self):
+        
+        while True:
+
+            # on accepte les joueur
+            Client, adresse =  self.connexion.accept()
+
+            #on l'ajoute a la liste
+            self.all_conexion_wait.append(Client)
 
             if len(self.all_conexion_wait) % 2 == 0:
-                for conexion in self.all_conexion_wait:
-                    self.all_conexion.append(conexion)
+                taille = len(self.all_conexion)
+                self.all_conexion[str(taille + 1)] = self.all_conexion_wait
                 self.all_conexion_wait = []
-                
-            if len(self.all_conexion) > 1: CreeThread(self.transfere_donné)
+
+            print ("New client : " + str(adresse[0]))
+            print("there is now : " + str(len(self.all_conexion_wait) + get_nombre_client(self.all_conexion)) + " clien")
+
+
+    def game(self):
+        while True:
+
+            for client in verifi_client_partenaire(self.all_conexion):   # on verifi si chaque client a son partenaire 
+                self.all_conexion_wait.append(client)
+            
+            
+    
+
+
+    def main(self):
+        
+        CreeThread(self.accepting_clients_thread)
+        CreeThread(self.protocole_client_wating_serveur)
+        CreeThread(self.game)
+
+        
+
+
+NetWwork().init(8080)
 
             
-
-
-
-netWwork = NetWwork().init(8080)

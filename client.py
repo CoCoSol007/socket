@@ -1,6 +1,6 @@
 import socket
 from threading import Thread
-
+from constant import *
 
 
 class client():
@@ -17,23 +17,25 @@ class client():
         self.main()
     def Send(self):
         while True:
-            msg = input("")
-            msg = msg.encode('utf-8')
+            msg = int(input(""))
+            msg = msg.to_bytes(4, 'big')
             self.connexion.send(msg)
     def Reception(self):
         while True:
-            requete_server = self.connexion.recv(1024).decode("utf-8")
-            if requete_server == "requet_playing" :
-                if self.b:
-                    print("player find")
-                    self.b = False
-                    self.a = True
-            elif requete_server == "requet_waitng":
-                if self.a:
-                    print("wating a player")
-                    self.a = False
-                    self.b = True
-            else : print(requete_server)
+            requete_server = self.connexion.recv(1024)
+            if len(requete_server) == 19:  # le client est en attente
+                requete_server = decripteur_bytes(requete_server) # on converti
+                if requete_server == numbre_waiting:
+                    if self.a:
+                        print("waiting a player")
+                        self.a = False
+                        self.b = True
+                elif requete_server[0] == 1:
+                    if self.b:
+                        print("waiting a player")
+                        self.a = True
+                        self.b = False
+                else : print(requete_server)
 
     def main(self):
 
