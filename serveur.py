@@ -20,8 +20,7 @@ class NetWwork:
 
 		self.main()
 
-	def protocole_client_wating_serveur(self):
-
+	def protocole_client_wating_serveur(self,a):
 		for client in self.all_conexion_wait:
 			try:
 				client.send(cripteur_bytes(numbre_waiting))
@@ -29,11 +28,9 @@ class NetWwork:
 				print("client deconecter")
 				self.all_conexion_wait.remove(client)
 
-	def send_to_client(self, client, data = list):
-		data = cripteur_bytes(data)
-		client.send(data)
 
-	def accepting_clients_thread(self):
+
+	def accepting_clients_thread(self,a):
 
 		# on accepte les joueur
 		Client, adresse =  self.connexion.accept()
@@ -43,10 +40,10 @@ class NetWwork:
 
 
 		print ("New client : " + str(adresse[0]))
-		print("there is now : " + str(len(self.all_conexion_wait) + get_nombre_client(self.all_conexion)) + " clien")
+		print("there is now : " + str(len(self.all_conexion_wait) + get_nombre_client(self.all_conexion)) + " client")
 
 
-	def game(self):
+	def game(self,a):
 
 		verifi_client_partenaire(self.all_conexion, self.all_conexion_wait)   # on verifi si chaque client a son partenaire 
 
@@ -54,12 +51,32 @@ class NetWwork:
 			taille = len(self.all_conexion)
 			self.all_conexion[str(taille + 1)] = self.all_conexion_wait
 			self.all_conexion_wait = []
+			self.all_thread_client.append(False)
+			
+		self.socuper_donné_thread()
 
-		self.transfere_donné()
-
-	def transfere_donné(self):
+	def socuper_donné_thread(self):
 		
-		pass
+		for game in recupe_game_non_thread(self.all_conexion, self.all_thread_client):
+			Game = self.all_conexion[game]
+			clientA =  Game[0]
+			clientB = Game[1]
+			MyThread(self.transfere_donné, arg = (clientA, clientB), boucle= False).start()
+			MyThread(self.transfere_donné, arg = (clientB, clientA), boucle= False).start()
+
+				
+
+	def transfere_donné(self, clients):
+		clientA, clientB = clients[0],clients[1]
+		while True:
+			try:
+				msg = clientB.recv(128)
+				clientA.send(msg)
+			except ConnectionError: 
+				del clientA
+				print("client deconecter")
+				verifi_client_partenaire(self.all_conexion, self.all_conexion_wait, self.all_thread_client) 
+				break
 
 
 
@@ -68,9 +85,7 @@ class NetWwork:
 		MyThread(self.protocole_client_wating_serveur).start()
 		MyThread(self.game).start()
 		MyThread(self.accepting_clients_thread).start()
-		
-		
-
+	
 
 NetWwork().init(8080)
 

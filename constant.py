@@ -29,7 +29,7 @@ def get_nombre_client(data):
 
         return n
 
-def verifi_client_partenaire(data, liste= list):
+def verifi_client_partenaire(data, liste, thread_list =list):
     client = []
     client_a_sup = [] 
     for game in data.items():
@@ -46,14 +46,40 @@ def verifi_client_partenaire(data, liste= list):
     return client
 
 class MyThread(threading.Thread):
-   def __init__(self,  fonction):
+   def __init__(self,  fonction, arg = None, boucle = None):
       threading.Thread.__init__(self)
       self.fonction = fonction
+      self.arg = arg
+      self.boucle = boucle
    def run(self):
-      while True:
-        self.fonction()
+    if self.boucle == False:
+        self.fonction(self.arg) 
+    else:
+        while True:
+            self.fonction(self.arg) 
+               
 
-def CreeThread(foction):
-	thread = threading. Thread(target=foction)
-	thread.start()
 
+
+def recupe_players(data, position ):
+    a = []
+    for elemment in data.values():
+        a.append(elemment)
+    return a[position]
+
+
+def recupe_game_non_thread(data, thread):
+
+    Games = []
+
+    result = []
+
+    for game in data.keys():
+        Games.append(game)
+        
+    for i in range(0,len(thread)):
+        if not thread[i]:
+            result.append(Games[i])
+            thread[i] = True
+
+    return result   # returne des clef 
