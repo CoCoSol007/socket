@@ -14,6 +14,9 @@ class client():
         self.a = True
         self.b = True
 
+        self.requete_server = None
+        self.ancien_requete_server= None
+
         self.main()
     def Send(self,a):
         try :
@@ -28,17 +31,20 @@ class client():
         
     def Reception(self,a):
 
-        requete_server = self.connexion.recv(1024)
-        if len(requete_server) == 19:  # le client est en attente
-            requete_server = decripteur_bytes(requete_server) # on converti
-            if requete_server == numbre_waiting:
+        self.requete_server = self.connexion.recv(1024)
+        if len(self.requete_server) == 19:  # le client est en attente
+            self.requete_server = decripteur_bytes(self.requete_server) # on converti
+            
+            if self.requete_server == numbre_waiting:
                 if self.a:
                     self.a = False
                     print("waiting a player")
+                
+            elif self.requete_server == numbre_playing: pass
 
-            elif requete_server[0] == 1:
+            elif self.requete_server[0] == 1:
                 self.a = True
-                print(requete_server)
+                print(self.requete_server)
 
     def main(self):
 

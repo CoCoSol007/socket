@@ -1,6 +1,7 @@
 import threading
 
 numbre_waiting = [0,0,0,0] # requet protocole waiting
+numbre_playing = [1,0,0,0] # requet protocole waiting
 
 def cripteur_bytes(data= list):
     new_data = []
@@ -21,33 +22,22 @@ def decripteur_bytes(data= list):
     return new_data
 
 
+
 def get_nombre_client(data):
 
         n = 0
-        for ellement in data.items():
-            n+=len(ellement)
+        for ellement in data:
+            for client in ellement:
+                n+=1
 
         return n
 
-def verifi_client_partenaire(data, liste, thread_list =list):
-    client = []
-    client_a_sup = [] 
-    for game in data.items():
-        if len(game[1]) == 1:
-            client.append(game[1][0])
-            client_a_sup.append(game[0])
 
-    for c in client_a_sup:   # on suprime les
-        del data[c]
-
-    for c in client:
-        liste.append(c)
-
-    return client
 
 class MyThread(threading.Thread):
    def __init__(self,  fonction, arg = None, boucle = None):
       threading.Thread.__init__(self)
+      print("thread lancer")
       self.fonction = fonction
       self.arg = arg
       self.boucle = boucle
@@ -57,7 +47,36 @@ class MyThread(threading.Thread):
     else:
         while True:
             self.fonction(self.arg) 
+    print("thread fermer")
                
+
+
+
+def find_player_in_data(data,player):
+    game = None
+    place = None
+    for i in range(0,len(data)):
+        for o in range(0,len(data[i])):
+            if data[i][o] == player:
+                game = i
+                place = o
+
+    return game, place
+
+
+def remove_player_partenair(data, player, data_wait= list):
+
+    # trouver la place du joueur partenair
+    key, place = find_player_in_data(data, player)
+    if place == 1 : place = 0
+    else : place = 1
+    joueur_partenair = data[key][place]
+
+    data_wait.append(joueur_partenair)
+
+
+
+
 
 
 
@@ -69,17 +88,15 @@ def recupe_players(data, position ):
 
 
 def recupe_game_non_thread(data, thread):
-
-    Games = []
-
     result = []
 
-    for game in data.keys():
-        Games.append(game)
         
     for i in range(0,len(thread)):
         if not thread[i]:
-            result.append(Games[i])
+            result.append(data[i])
             thread[i] = True
 
     return result   # returne des clef 
+
+
+

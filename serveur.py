@@ -8,15 +8,19 @@ class NetWwork:
 		self.host = ''
 		self.port = port
 
-		self.all_conexion = {}
+		self.all_conexion = []
 		self.all_conexion_wait = []
 		self.all_thread_client = []
+		self.data = []
 
 		self.connexion = socket.socket()
 		self.connexion.bind((self.host, self.port))
 		print('server launch...')
 		
 		self.connexion.listen()
+
+		self.client_juste_kick_1 = None
+		self.client_juste_kick_2 = None
 
 		self.main()
 
@@ -45,38 +49,83 @@ class NetWwork:
 
 	def game(self,a):
 
-		verifi_client_partenaire(self.all_conexion, self.all_conexion_wait)   # on verifi si chaque client a son partenaire 
-
 		if len(self.all_conexion_wait) % 2 == 0 and len(self.all_conexion_wait) > 0 :
-			taille = len(self.all_conexion)
-			self.all_conexion[str(taille + 1)] = self.all_conexion_wait
-			self.all_conexion_wait = []
+			print("new game")
+			
+			self.all_conexion.append(self.all_conexion_wait)
+			self.data.append([cripteur_bytes(numbre_playing),cripteur_bytes(numbre_playing)])
 			self.all_thread_client.append(False)
+			self.all_conexion_wait = []
 			
 		self.socuper_donné_thread()
 
 	def socuper_donné_thread(self):
+
 		
 		for game in recupe_game_non_thread(self.all_conexion, self.all_thread_client):
-			Game = self.all_conexion[game]
-			clientA =  Game[0]
-			clientB = Game[1]
-			MyThread(self.transfere_donné, arg = (clientA, clientB), boucle= False).start()
-			MyThread(self.transfere_donné, arg = (clientB, clientA), boucle= False).start()
+			MyThread(self.transfere_donné_envoi, arg = game[0], boucle= False).start()
+			MyThread(self.transfere_donné_envoi, arg = game[1], boucle= False).start()
+			MyThread(self.transfere_donné_recoi, arg = game[0], boucle= False).start()
+			MyThread(self.transfere_donné_recoi, arg = game[1], boucle= False).start()
+		
 
 				
 
-	def transfere_donné(self, clients):
-		clientA, clientB = clients[0],clients[1]
-		while True:
-			try:
-				msg = clientB.recv(128)
-				clientA.send(msg)
-			except ConnectionError: 
-				del clientA
-				print("client deconecter")
-				verifi_client_partenaire(self.all_conexion, self.all_conexion_wait, self.all_thread_client) 
+	def transfere_donné_envoi(self, client):
+
+		key, place = find_player_in_data(self.all_conexion, client)
+		if place == 1 : data_place = 0
+		if place == 0 : data_place = 1
+		run = True
+		while run:
+
+			try: self.all_conexion[key][place]
+			except :
+				run = False
 				break
+
+			try:
+				client.send(self.data[key][data_place])
+			except:
+				if self.client_juste_kick_1 != client:
+					self.client_juste_kick_1 = client
+
+					remove_player_partenair(self.all_conexion, client, self.all_conexion_wait)
+					del self.all_conexion[key]
+					del self.all_thread_client[key]
+					del self.data[key][data_place]
+					print("client deconecter") 
+
+				run = False
+			
+	def transfere_donné_recoi(self, client):
+		
+		key , place = find_player_in_data(self.all_conexion, client)
+
+
+		run = True
+		while run:
+
+			try: self.all_conexion[key][place]
+			except :
+				run = False
+				break
+			
+			try:
+				msg = client.recv(1024)
+				self.data[key][place] = msg
+				
+			except :
+				if self.client_juste_kick_1 != client:
+					self.client_juste_kick_1 = client
+
+					remove_player_partenair(self.all_conexion, client, self.all_conexion_wait)
+					del self.all_conexion[key]
+					del self.all_thread_client[key]
+					del self.data[key][place]
+
+					print("client deconecter") 
+				run = False
 
 
 
@@ -89,4 +138,3 @@ class NetWwork:
 
 NetWwork().init(8080)
 
-			
