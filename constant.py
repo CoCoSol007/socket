@@ -2,18 +2,23 @@ import threading
 
 numbre_waiting = [0,0,0,0] # requet protocole waiting
 numbre_playing = [1,0,0,0] # requet protocole waiting
+MAX_BYTES_MSG = 19
+
+FRAME_CLEINT = 10000
 
 def cripteur_bytes(data= list):
     new_data = []
     for element in data:
         new_data.append(int(element).to_bytes(4,'big'))
-    new_data = b' '.join(new_data)
+    new_data = b','.join(new_data)
 
     return new_data
 
+
+
 def decripteur_bytes(data= list):
     new_data= []
-    data = data.split(b" ")
+    data = data.split(b",")
     for nbr in data:
         new_data.append(int.from_bytes(nbr,'big'))
 
@@ -35,20 +40,19 @@ def get_nombre_client(data):
 
 
 class MyThread(threading.Thread):
-   def __init__(self,  fonction, arg = None, boucle = None):
+   def __init__(self,  fonction, arg = None, boucle = None, Name = None):
       threading.Thread.__init__(self)
-      print("thread lancer")
       self.fonction = fonction
       self.arg = arg
       self.boucle = boucle
+      self.name = Name
    def run(self):
     if self.boucle == False:
         self.fonction(self.arg) 
     else:
         while True:
             self.fonction(self.arg) 
-    print("thread fermer")
-               
+
 
 
 
@@ -98,5 +102,7 @@ def recupe_game_non_thread(data, thread):
 
     return result   # returne des clef 
 
+
+print(decripteur_bytes (cripteur_bytes([1,32,32,32])))
 
 

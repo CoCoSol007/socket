@@ -11,43 +11,58 @@ class client():
         port = 8080
         self.connexion.connect((host, port))
 
-        self.a = True
-        self.b = True
+        self.state = None
+        self.msg_envoi = 0
 
         self.requete_server = None
         self.ancien_requete_server= None
 
+        self.msg = cripteur_bytes(numbre_playing)
+        self.ancien_msg = None
+
         self.main()
+
     def Send(self,a):
-        try :
-            msg1= int(input(""))
-            msg2 = int(input(""))
-            msg3 = int(input(""))
-            msg = [1,msg1,msg2,msg3]
-            msg = cripteur_bytes(msg)
-            self.connexion.send(msg)
-        except :
-            pass
+
+        if self.msg_envoi == 1:
+            self.connexion.send(self.msg)
+        self.msg_envoi +=1
+        if self.msg_envoi == FRAME_CLEINT:
+            self.msg_envoi = 0
+
         
     def Reception(self,a):
 
         self.requete_server = self.connexion.recv(1024)
-        if len(self.requete_server) == 19:  # le client est en attente
+        if len(self.requete_server) == MAX_BYTES_MSG:  # le client est en attente
             self.requete_server = decripteur_bytes(self.requete_server) # on converti
             
             if self.requete_server == numbre_waiting:
-                if self.a:
-                    self.a = False
+                if self.state != 'waiting':
+                    self.state = "waiting"
+                    self.msg = cripteur_bytes(numbre_playing)
                     print("waiting a player")
                 
-            elif self.requete_server == numbre_playing: pass
 
             elif self.requete_server[0] == 1:
-                self.a = True
-                print(self.requete_server)
+                self.state = 'playing'
+                if self.requete_server == numbre_playing: pass
+                else: print(self.requete_server)
+
+    def recupe_donné(self,a):
+        try:
+            msg1= int(input(""))
+            msg2 = int(input(""))
+            msg3 = int(input(""))
+            self.msg = cripteur_bytes([1,msg1,msg2,msg3])
+             
+        except ValueError: pass
+                
+       
 
     def main(self):
 
+        MyThread(self.recupe_donné).start()
         MyThread(self.Send).start()
         MyThread(self.Reception).start()
         

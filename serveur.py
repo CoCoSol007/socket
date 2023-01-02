@@ -19,8 +19,7 @@ class NetWwork:
 		
 		self.connexion.listen()
 
-		self.client_juste_kick_1 = None
-		self.client_juste_kick_2 = None
+		self.client_juste_kick = None
 
 		self.main()
 
@@ -61,72 +60,57 @@ class NetWwork:
 
 	def socuper_donné_thread(self):
 
-		
-		for game in recupe_game_non_thread(self.all_conexion, self.all_thread_client):
-			MyThread(self.transfere_donné_envoi, arg = game[0], boucle= False).start()
-			MyThread(self.transfere_donné_envoi, arg = game[1], boucle= False).start()
-			MyThread(self.transfere_donné_recoi, arg = game[0], boucle= False).start()
-			MyThread(self.transfere_donné_recoi, arg = game[1], boucle= False).start()
-		
+		try : 
+			for game in recupe_game_non_thread(self.all_conexion, self.all_thread_client):
+				MyThread(self.transfere_donné, arg = [game[0],game[1]], boucle= False, Name="1").start()
+				MyThread(self.transfere_donné, arg = [game[1],game[0]], boucle= False, Name="2").start()
+		except : pass
+	
 
-				
+	def transfere_donné(self, clients):
 
-	def transfere_donné_envoi(self, client):
+		client_prinsipal = clients[0]
+		client_secondaire = clients[1]
 
-		key, place = find_player_in_data(self.all_conexion, client)
+		key, place = find_player_in_data(self.all_conexion, client_prinsipal)
+
 		if place == 1 : data_place = 0
 		if place == 0 : data_place = 1
-		run = True
-		while run:
-
-			try: self.all_conexion[key][place]
-			except :
-				run = False
-				break
-
-			try:
-				client.send(self.data[key][data_place])
-			except:
-				if self.client_juste_kick_1 != client:
-					self.client_juste_kick_1 = client
-
-					remove_player_partenair(self.all_conexion, client, self.all_conexion_wait)
-					del self.all_conexion[key]
-					del self.all_thread_client[key]
-					del self.data[key][data_place]
-					print("client deconecter") 
-
-				run = False
-			
-	def transfere_donné_recoi(self, client):
-		
-		key , place = find_player_in_data(self.all_conexion, client)
-
 
 		run = True
 		while run:
 
-			try: self.all_conexion[key][place]
-			except :
-				run = False
-				break
-			
 			try:
-				msg = client.recv(1024)
-				self.data[key][place] = msg
+				
+				msg = client_prinsipal.recv(1024)  
+				if len(msg) == MAX_BYTES_MSG:
+					self.data[key][place] = msg
 				
 			except :
-				if self.client_juste_kick_1 != client:
-					self.client_juste_kick_1 = client
-
-					remove_player_partenair(self.all_conexion, client, self.all_conexion_wait)
-					del self.all_conexion[key]
-					del self.all_thread_client[key]
-					del self.data[key][place]
-
-					print("client deconecter") 
+				try:
+					self.remove_game(client_prinsipal, key)
+				except: pass
 				run = False
+				break
 
+			try :
+
+				client_secondaire.send(self.data[key][place])
+
+			except : run = False
+
+			
+
+
+
+	def remove_game(self, client,key):
+
+		remove_player_partenair(self.all_conexion, client, self.all_conexion_wait)
+		del self.all_conexion[key]
+		del self.all_thread_client[key]
+		del self.data[key]
+
+		print("client deconecter") 
 
 
 	def main(self):
