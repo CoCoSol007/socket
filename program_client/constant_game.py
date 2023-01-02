@@ -1,7 +1,7 @@
 LONGEUR = 1200
 LARGUEUR = 800
 
-fps = 60
+fps = 120
 
 vitesse = 10
 
