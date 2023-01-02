@@ -76,9 +76,6 @@ class NetWwork:
 
 		key, place = find_player_in_data(self.all_conexion, client_prinsipal)
 
-		if place == 1 : data_place = 0
-		if place == 0 : data_place = 1
-
 		run = True
 		while run:
 			if self.run == True:
@@ -87,6 +84,8 @@ class NetWwork:
 					msg = client_prinsipal.recv(1024)  
 					if len(msg) == MAX_BYTES_MSG:
 						self.data[key][place] = msg
+					else: 
+						decripteur_bytes(msg)
 					
 				except :
 					try:

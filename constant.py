@@ -3,16 +3,18 @@ import threading
 numbre_waiting = [0,0,0,0] # requet protocole waiting
 numbre_playing = [1,0,0,0] # requet protocole waiting
 MAX_BYTES_MSG = 19
+NOMBRE_DONNE = 4
 
-FRAME_CLEINT = 10000
+FRAME_CLEINT = 10
 
 def cripteur_bytes(data= list):
     new_data = []
-    for element in data:
-        new_data.append(int(element).to_bytes(4,'big'))
+    for element in range(0,NOMBRE_DONNE):
+        new_data.append(int(data[element]).to_bytes(4,'big'))
     new_data = b','.join(new_data)
 
     return new_data
+
 
 
 
@@ -112,6 +114,5 @@ def recupe_game_non_thread(data, thread):
     return result   # returne des clef 
 
 
-print(decripteur_bytes (cripteur_bytes([1,32,32,32])))
 
 

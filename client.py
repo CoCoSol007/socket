@@ -5,11 +5,14 @@ from constant import *
 
 class client():
     def init(self):
-
         self.connexion = socket.socket()
         host = 'localhost'
         port = 8080
-        self.connexion.connect((host, port))
+        try :
+            
+            self.connexion.connect((host, port))
+        except : 
+            self.connexion.connect(("138.68.96.66", port))
 
         self.state = None
         self.msg_envoi = 0
