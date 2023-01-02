@@ -21,6 +21,8 @@ class NetWwork:
 
 		self.client_juste_kick = None
 
+		self.run = True
+
 		self.main()
 
 	def protocole_client_wating_serveur(self,a):
@@ -62,8 +64,8 @@ class NetWwork:
 
 		try : 
 			for game in recupe_game_non_thread(self.all_conexion, self.all_thread_client):
-				MyThread(self.transfere_donné, arg = [game[0],game[1]], boucle= False, Name="1").start()
-				MyThread(self.transfere_donné, arg = [game[1],game[0]], boucle= False, Name="2").start()
+				MyThread(self.transfere_donné, arg = [game[0],game[1]], boucle= False, Name="1", serveur = self).start()
+				MyThread(self.transfere_donné, arg = [game[1],game[0]], boucle= False, Name="2", serveur = self).start()
 		except : pass
 	
 
@@ -79,26 +81,25 @@ class NetWwork:
 
 		run = True
 		while run:
+			if self.run == True:
 
-			try:
-				
-				msg = client_prinsipal.recv(1024)  
-				if len(msg) == MAX_BYTES_MSG:
-					self.data[key][place] = msg
-				
-			except :
 				try:
-					self.remove_game(client_prinsipal, key)
-				except: pass
-				run = False
-				break
+					msg = client_prinsipal.recv(1024)  
+					if len(msg) == MAX_BYTES_MSG:
+						self.data[key][place] = msg
+					
+				except :
+					try:
+						self.remove_game(client_prinsipal, key)
+					except: pass
+					run = False
+					break
 
-			try :
+				try :
+					client_secondaire.send(self.data[key][place])
+				except : run = False
 
-				client_secondaire.send(self.data[key][place])
-
-			except : run = False
-
+			else: break
 			
 
 
@@ -112,13 +113,24 @@ class NetWwork:
 
 		print("client deconecter") 
 
+	def consol(self,a): 
+		comande = input("")
+		if comande == 'close':
+			self.run = False
+			connexion = socket.socket()
+			host = 'localhost'
+			port = 8080
+			connexion.connect((host, port))
+			
+
 
 	def main(self):
 		
-		MyThread(self.protocole_client_wating_serveur).start()
-		MyThread(self.game).start()
-		MyThread(self.accepting_clients_thread).start()
-	
+		MyThread(self.protocole_client_wating_serveur, serveur = self).start()
+		MyThread(self.game, serveur = self).start()
+		MyThread(self.accepting_clients_thread, serveur = self).start()
+		MyThread(self.consol, serveur = self).start()
 
-NetWwork().init(8080)
+serveur = NetWwork().init(8080)
+
 

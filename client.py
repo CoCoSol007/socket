@@ -14,6 +14,8 @@ class client():
         self.state = None
         self.msg_envoi = 0
 
+        self.run = True
+
         self.requete_server = None
         self.ancien_requete_server= None
 
@@ -62,9 +64,9 @@ class client():
 
     def main(self):
 
-        MyThread(self.recupe_donné).start()
-        MyThread(self.Send).start()
-        MyThread(self.Reception).start()
+        MyThread(self.recupe_donné, serveur=self).start()
+        MyThread(self.Send, serveur=self).start()
+        MyThread(self.Reception, serveur=self).start()
         
         
 

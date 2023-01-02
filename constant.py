@@ -40,18 +40,27 @@ def get_nombre_client(data):
 
 
 class MyThread(threading.Thread):
-   def __init__(self,  fonction, arg = None, boucle = None, Name = None):
-      threading.Thread.__init__(self)
-      self.fonction = fonction
-      self.arg = arg
-      self.boucle = boucle
-      self.name = Name
-   def run(self):
-    if self.boucle == False:
-        self.fonction(self.arg) 
-    else:
-        while True:
+    def __init__(self,  fonction, arg = None, boucle = None, Name = None, serveur = False):
+
+        threading.Thread.__init__(self)
+        self.fonction = fonction
+        self.arg = arg
+        self.boucle = boucle
+        self.name = Name
+        self.serveur = serveur
+    def run(self):
+            
+        if self.boucle == False:
+            
             self.fonction(self.arg) 
+            
+        else:
+            while True:
+                if self.serveur.run == True:
+                    self.fonction(self.arg) 
+                else: break
+
+        print("thread close")
 
 
 
