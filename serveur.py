@@ -81,11 +81,9 @@ class NetWwork:
 			if self.run == True:
 
 				try:
-					msg = client_prinsipal.recv(1024)  
-					if len(msg) == MAX_BYTES_MSG:
-						self.data[key][place] = msg
-					else: 
-						decripteur_bytes(msg)
+					msg = client_prinsipal.recv(1024) 
+					self.data[key][place] = msg
+					
 					
 				except :
 					try:

@@ -15,44 +15,31 @@ class client():
             self.connexion.connect(("138.68.96.66", port))
 
         self.state = None
-        self.msg_envoi = 0
+        self.msg_envoi = True
 
         self.run = True
 
-        self.requete_server = None
-        self.ancien_requete_server= None
 
         self.msg = cripteur_bytes(numbre_playing)
-        self.ancien_msg = None
 
         self.main()
 
     def Send(self,a):
-
-        if self.msg_envoi == 1:
+        if self.msg_envoi == True:
             self.connexion.send(self.msg)
-        self.msg_envoi +=1
-        if self.msg_envoi == FRAME_CLEINT:
-            self.msg_envoi = 0
+            self.msg_envoi = False
 
         
     def Reception(self,a):
+        requet = self.connexion.recv(1024)
+        self.msg_envoi = True
 
-        self.requete_server = self.connexion.recv(1024)
-        if len(self.requete_server) == MAX_BYTES_MSG:  # le client est en attente
-            self.requete_server = decripteur_bytes(self.requete_server) # on converti
-            
-            if self.requete_server == numbre_waiting:
-                if self.state != 'waiting':
-                    self.state = "waiting"
-                    self.msg = cripteur_bytes(numbre_playing)
-                    print("waiting a player")
-                
+        if len(requet) == MAX_BYTES_MSG:
+            if requet == cripteur_bytes(numbre_waiting): pass
+            else: 
+                msg = decripteur_bytes(requet)
+                print(msg)
 
-            elif self.requete_server[0] == 1:
-                self.state = 'playing'
-                if self.requete_server == numbre_playing: pass
-                else: print(self.requete_server)
 
     def recupe_donné(self,a):
         try:

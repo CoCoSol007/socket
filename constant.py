@@ -5,7 +5,7 @@ numbre_playing = [1,0,0,0] # requet protocole waiting
 MAX_BYTES_MSG = 19
 NOMBRE_DONNE = 4
 
-FRAME_CLEINT = 10
+
 
 def cripteur_bytes(data= list):
     new_data = []
@@ -18,16 +18,17 @@ def cripteur_bytes(data= list):
 
 
 
+
+
 def decripteur_bytes(data= list):
     new_data= []
     data = data.split(b",")
-    for nbr in data:
-        new_data.append(int.from_bytes(nbr,'big'))
+    for nbr in range(0,NOMBRE_DONNE):
+        new_data.append(int.from_bytes(data[nbr],'big'))
 
 
 
     return new_data
-
 
 
 def get_nombre_client(data):
