@@ -115,5 +115,3 @@ def recupe_game_non_thread(data, thread):
     return result   # returne des clef 
 
 
-
-

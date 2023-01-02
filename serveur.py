@@ -1,6 +1,6 @@
 import socket
 from threading import Thread
-from constant import *
+from constant_network import *
 
 
 class NetWwork:
