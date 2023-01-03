@@ -104,6 +104,7 @@ class NetWwork:
 	def remove_game(self, client,key):
 
 		remove_player_partenair(self.all_conexion, client, self.all_conexion_wait)
+		
 		del self.all_conexion[key]
 		del self.all_thread_client[key]
 		del self.data[key]
@@ -118,7 +119,17 @@ class NetWwork:
 			host = 'localhost'
 			port = 8080
 			connexion.connect((host, port))
+
+		elif comande == "show how many client playing":
+			print(str(get_nombre_client(self.all_conexion)))
 			
+		elif comande == "show how many client waiting":
+			print(str(len(self.all_conexion_wait)))
+  
+		elif comande == "show how many game":
+			print(str(len(self.all_conexion)))
+		
+		else : print("comande error : comande don't know")
 
 
 	def main(self):

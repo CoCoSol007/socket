@@ -41,7 +41,7 @@ class Enemi(pygame.sprite.Sprite):
 
         self.rect = self.image.get_rect()
 
-        self.rect.center = (1100,LARGUEUR/2)
+        self.rect.center = (LONGEUR- 100,LARGUEUR/2)
 
     def update(self):
         self.recoi_co()
