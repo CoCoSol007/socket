@@ -13,8 +13,8 @@ pygame.display.set_caption('test 2 - network')
 Client = client()
 Client.init(8080)
 
-player = Player(Client)
-enemi = Enemi(Client)
+player = Player(Client.connexion)
+enemi = Enemi(Client.connexion)
 truc_to_draw = pygame.sprite.Group(player, enemi)
 
 run = True

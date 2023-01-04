@@ -11,7 +11,7 @@ def cripteur_bytes(data= list):
     new_data = []
     for element in range(0,NOMBRE_DONNE):
         new_data.append(int(data[element]).to_bytes(4,'big'))
-    new_data = b','.join(new_data)
+    new_data = b'!'.join(new_data)
 
     return new_data
 
@@ -22,7 +22,7 @@ def cripteur_bytes(data= list):
 
 def decripteur_bytes(data= list):
     new_data= []
-    data = data.split(b",")
+    data = data.split(b"!")
     for nbr in range(0,NOMBRE_DONNE):
         new_data.append(int.from_bytes(data[nbr],'big'))
 

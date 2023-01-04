@@ -1,55 +1,87 @@
+import time
 import pygame
+from constant_network import *
 from program_client.client import client
 from program_client.constant_game import *
-from constant_network import MyThread
+
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self,client):
+    def __init__(self, conexion ):
         super().__init__()
-        self.client = client
-        self.image = pygame.transform.scale(pygame.image.load("program_client\player.png"), (32,32))
+        self.image = pygame.transform.scale(pygame.image.load(PATH + "\player.png"), (32,32))
 
         self.rect = self.image.get_rect()
+        self.msg = cripteur_bytes(numbre_playing)
 
         self.rect.center = (100,LARGUEUR/2)
 
+        self.conexion = conexion
+
     def move_right(self):
         self.rect.centerx -= vitesse
+        self.evoi_coo()
 
     def move_left(self):
         self.rect.centerx += vitesse
+        self.evoi_coo()
 
     def move_up(self):
         self.rect.centery -= vitesse
+        self.evoi_coo()
 
     def move_down(self):
         self.rect.centery += vitesse
+        self.evoi_coo()
 
     def evoi_coo(self):
-        self.client.new_donné(self.rect.centerx, self.rect.centery)
+        msg = [1,self.rect.centerx,self.rect.centery,0]
+        msg = cripteur_bytes(msg)
+        self.conexion.send(msg)
          
     def update(self):
+        pass
         
-        self.evoi_coo()
         
 
 class Enemi(pygame.sprite.Sprite):
-    def __init__(self, client):
+    def __init__(self, conexion):
         super().__init__()
-        self.client = client
-        self.image = pygame.transform.scale(pygame.image.load("program_client\player enemi.png"), (32,32))
+        self.image = pygame.transform.scale(pygame.image.load(PATH + "\player enemi.png"), (32,32))
 
         self.rect = self.image.get_rect()
 
         self.rect.center = (LONGEUR- 100,LARGUEUR/2)
 
+        self.conexion = conexion
+        self.data = [1,100, LARGUEUR/2,0]
+
+        self.run = True
+        self.ping = 0
+        self.all_ping = []
+
+        MyThread(self.Reception, serveur=self).start()
+        MyThread(self.timer, serveur=self).start()
+
     def update(self):
-        self.recoi_co()
+        self.rect.centerx = self.data[1]
+        self.rect.centery = self.data[2]
 
-    def recoi_co(self):
-        data = self.client.get_data()
-        self.rect.centerx = flip(data[1])
-        self.rect.centery = data[2]
 
+    def Reception(self,a):
+        requet = self.conexion.recv(1024)
+
+        requet = decripteur_bytes(requet)
+        if requet == numbre_waiting: pass
+        elif requet == numbre_playing : pass
+        else: 
+                self.data = requet
+                self.ping += 1
+
+    def timer(self,a):
+        self.ping = 0
+        time.sleep(1)
+        self.all_ping.append(self.ping)
+        print (Average(self.all_ping))
+        print("____________________")
 
 
