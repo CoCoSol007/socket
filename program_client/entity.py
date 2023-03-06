@@ -18,19 +18,19 @@ class Player(pygame.sprite.Sprite):
         self.conexion = conexion
 
     def move_right(self):
-        self.rect.centerx -= vitesse
+        self.rect.centerx = min(self.rect.centerx + vitesse, LONGEUR)
         self.evoi_coo()
 
     def move_left(self):
-        self.rect.centerx += vitesse
+        self.rect.centerx = max(self.rect.centerx - vitesse, 0)
         self.evoi_coo()
 
     def move_up(self):
-        self.rect.centery -= vitesse
+        self.rect.centery = max(self.rect.centery - vitesse, 0)
         self.evoi_coo()
 
     def move_down(self):
-        self.rect.centery += vitesse
+        self.rect.centery = min(self.rect.centery + vitesse, LARGUEUR)
         self.evoi_coo()
 
     def evoi_coo(self):

@@ -102,13 +102,13 @@ class NetWwork:
 			port = 8080
 			connexion.connect((host, port))
 
-		elif comande == "show how many client playing":
+		elif comande == "client p":
 			print(str(get_nombre_client(self.all_conexion)))
 			
-		elif comande == "show how many client waiting":
+		elif comande == "client w":
 			print(str(len(self.all_conexion_wait)))
   
-		elif comande == "show how many game":
+		elif comande == "game":
 			print(str(len(self.all_conexion)))
 		
 		else : print("comande error : comande don't know")
@@ -119,7 +119,7 @@ class NetWwork:
 		MyThread(self.protocole_client_wating_serveur, serveur = self).start()
 		MyThread(self.game, serveur = self).start()
 		MyThread(self.accepting_clients_thread, serveur = self).start()
-		#MyThread(self.consol, serveur = self).start()
+		MyThread(self.consol, serveur = self).start()
 
 serveur = NetWwork().init(8080)
 

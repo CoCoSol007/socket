@@ -32,15 +32,15 @@ while run:
     
     # On gère les mouvement 
     touches = pygame.key.get_pressed()
-    if touches[pygame.K_q]:
+    if touches[pygame.K_d]:
         player.move_right()
-    elif touches[pygame.K_d]:
+    elif touches[pygame.K_q]:
         player.move_left()
     if touches[pygame.K_z]:
         player.move_up()
     elif touches[pygame.K_s]:
         player.move_down()
-    
+
 
     # On gere les update
     truc_to_draw.update()
